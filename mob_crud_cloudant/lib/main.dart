@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pages/studentList.dart';
+import 'pages/regStudentPage.dart';
 
 void main() {
   runApp(const MyApp());
