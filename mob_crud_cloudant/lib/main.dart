@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'pages/studentList.dart';
 import 'pages/regStudentPage.dart';
+import 'pages/studentDetails.dart';
+import 'utility/student.dart';
 
 void main() {
   runApp(const MyApp());
@@ -58,6 +60,8 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return const StudentList();
+    return const StudentDetailsPage(
+      studentId: 2020171601,
+    );
   }
 }
