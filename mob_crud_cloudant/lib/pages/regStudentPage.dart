@@ -7,6 +7,7 @@ import '../utility/student.dart';
 import '../utility/network.dart';
 import '../utility/validationFormFields.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 
 class RegisterStudentPage extends StatefulWidget {
   const RegisterStudentPage({super.key});
@@ -33,11 +34,11 @@ class _RegisterStudentPageState extends State<RegisterStudentPage> {
     await Future.delayed(const Duration(seconds: 1));
 
     if (!_formKey.currentState!.validate() ||
-        newStudent.genderController == null) {
+        newStudent.genderController2.text == "") {
       setState(() {
         _isLoading = false;
       });
-      if (newStudent.genderController == null) {
+      if (newStudent.genderController2.text == "") {
         setState(() {
           _isGenderError = true;
         });
@@ -140,11 +141,13 @@ class _RegisterStudentPageState extends State<RegisterStudentPage> {
                         ),
                         Container(
                             width: double.infinity,
-                            margin: EdgeInsets.only(top: 8, left: 8),
+                            margin: const EdgeInsets.only(left: 10),
                             child: const Text(
                               "Gender",
-                              textAlign: TextAlign.start,
-                              style: TextStyle(fontSize: 17),
+                              style: TextStyle(
+                                fontSize: 18,
+                              ),
+                              textAlign: TextAlign.left,
                             )),
                         (_isGenderError)
                             ? Container(
@@ -157,33 +160,10 @@ class _RegisterStudentPageState extends State<RegisterStudentPage> {
                                       fontSize: 12, color: Colors.redAccent),
                                 ))
                             : Container(),
-                        Row(
-                          children: <Widget>[
-                            Expanded(
-                                flex: 4,
-                                child: RadioListTile<Gender>(
-                                  title: const Text('Male'),
-                                  value: Gender.male,
-                                  groupValue: newStudent.genderController,
-                                  onChanged: (Gender? value) {
-                                    setState(() {
-                                      newStudent.genderController = value;
-                                    });
-                                  },
-                                )),
-                            Expanded(
-                                flex: 6,
-                                child: RadioListTile<Gender>(
-                                  title: const Text('Female'),
-                                  value: Gender.female,
-                                  groupValue: newStudent.genderController,
-                                  onChanged: (Gender? value) {
-                                    setState(() {
-                                      newStudent.genderController = value;
-                                    });
-                                  },
-                                )),
-                          ],
+                        CustomDropdown(
+                          items: GENDERS,
+                          hintText: "Choose a gender",
+                          controller: newStudent.genderController2,
                         ),
                         SizedBox(
                             width: double.infinity,

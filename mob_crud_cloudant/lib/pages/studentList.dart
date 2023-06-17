@@ -8,6 +8,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../utility/network.dart';
 import 'regStudentPage.dart';
+import 'studentDetails.dart';
 
 class StudentList extends StatefulWidget {
   const StudentList({super.key});
@@ -18,12 +19,21 @@ class StudentList extends StatefulWidget {
 
 class _StudentListState extends State<StudentList> {
   bool _isLoading = true;
+
+  void ViewStudentDetails(int studentId) {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: ((context) => StudentDetailsPage(studentId: studentId))));
+  }
+
   Widget generateCardTile(String name, int studentId, String gender) {
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
+              onTap: () {
+                ViewStudentDetails(studentId);
+              },
               leading: const Icon(
                 Icons.person_pin,
                 size: 40,
@@ -82,9 +92,7 @@ class _StudentListState extends State<StudentList> {
       _isLoading = false;
     });
     if (studRecords.containsKey('docs') && studRecords['docs'].length > 0) {
-      // print(studRecords['docs'].length);
       for (int i = 0; i < studRecords['docs'].length; i++) {
-        print(studRecords['docs'][i]['name']);
         recordTile.add(generateCardTile(
             studRecords['docs'][i]['name'],
             studRecords['docs'][i]['studentId'],

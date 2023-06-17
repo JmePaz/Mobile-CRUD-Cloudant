@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import '../utility/student.dart';
 import '../utility/network.dart' as net;
 import '../utility/validationFormFields.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 
 class StudentDetailsPage extends StatefulWidget {
   final int studentId;
@@ -23,6 +23,7 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
   Student? student;
   bool _isGenderError = false;
   Future<Map?>? _studentDetails;
+  bool _isEnabledFields = false;
 
   @override
   initState() {
@@ -72,7 +73,7 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(11)
                 ],
-                enabled: false,
+                enabled: _isEnabledFields,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
@@ -86,8 +87,8 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
               child: TextFormField(
                 validator: ValidationForm.validateNonEmptyField,
                 controller: student?.nameController,
-                enabled: false,
-                decoration: InputDecoration(
+                enabled: _isEnabledFields,
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: 'e.g. John Doe',
                   labelText: 'Enter Student Name',
@@ -100,12 +101,12 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
                 validator: ValidationForm.validateAge,
                 keyboardType: TextInputType.number,
                 controller: student?.ageController,
-                enabled: false,
+                enabled: _isEnabledFields,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(2)
                 ],
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: 'e.g. 18, 20, or 24',
                   labelText: 'Enter Student Age',
@@ -113,13 +114,13 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               child: TextFormField(
                 validator: ValidationForm.validateNonEmptyField,
                 keyboardType: TextInputType.emailAddress,
                 controller: student?.emailController,
-                enabled: false,
-                decoration: InputDecoration(
+                enabled: _isEnabledFields,
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: 'e.g. johndoe@gmail.com',
                   labelText: 'Enter Email Address',
@@ -128,65 +129,36 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
             ),
             Container(
                 width: double.infinity,
-                margin: EdgeInsets.only(top: 8, left: 8),
+                margin: const EdgeInsets.only(left: 10),
                 child: const Text(
                   "Gender",
-                  textAlign: TextAlign.start,
-                  style: TextStyle(fontSize: 17),
+                  style: TextStyle(
+                    fontSize: 18,
+                  ),
+                  textAlign: TextAlign.left,
                 )),
-            (_isGenderError)
-                ? Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(left: 20),
-                    child: const Text(
-                      "Please pick a gender",
-                      textAlign: TextAlign.start,
-                      style: TextStyle(fontSize: 12, color: Colors.redAccent),
-                    ))
-                : Container(),
-            Row(
-              children: <Widget>[
-                Expanded(
-                    flex: 4,
-                    child: RadioListTile<Gender>(
-                      title: const Text('Male'),
-                      value: Gender.male,
-                      groupValue: student?.genderController,
-                      onChanged: (Gender? value) {
-                        setState(() {
-                          student?.genderController = value;
-                        });
-                      },
-                    )),
-                Expanded(
-                    flex: 6,
-                    child: RadioListTile<Gender>(
-                      title: const Text('Female'),
-                      value: Gender.female,
-                      groupValue: student?.genderController,
-                      onChanged: (Gender? value) {
-                        setState(() {
-                          student?.genderController = value;
-                        });
-                      },
-                    )),
-              ],
+            CustomDropdown(
+              items: (_isEnabledFields)
+                  ? GENDERS
+                  : [student!.genderController2.text],
+              controller: student!.genderController2,
             ),
             Row(children: [
               Expanded(
                   flex: 6,
                   child: Padding(
                       padding: const EdgeInsets.only(
-                          left: 5, bottom: 5, right: 5, top: 0),
-                      child: ElevatedButton(
+                          left: 5, bottom: 5, right: 5, top: 5),
+                      child: ElevatedButton.icon(
                           onPressed: () {},
+                          icon: Icon(Icons.update),
                           style: ButtonStyle(
                               shape: MaterialStateProperty.all<
                                       RoundedRectangleBorder>(
                                   RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0),
+                            borderRadius: BorderRadius.circular(5.0),
                           ))),
-                          child: const Text("Update",
+                          label: const Text("Update",
                               style: TextStyle(fontSize: 15))))),
               Expanded(
                   flex: 4,

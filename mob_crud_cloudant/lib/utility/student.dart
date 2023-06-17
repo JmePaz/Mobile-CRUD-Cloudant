@@ -2,6 +2,16 @@ import 'package:flutter/cupertino.dart';
 
 enum Gender { male, female }
 
+final List<String> GENDERS = [
+  'Male',
+  'Female',
+  'Trans man',
+  'Trans woman',
+  'Non-binary',
+  'Not-Listed',
+  'Prefered not to disclosed'
+];
+
 class Student {
   //text editing controller
   TextEditingController studentIDController = TextEditingController();
@@ -9,6 +19,7 @@ class Student {
   TextEditingController ageController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   Gender? genderController;
+  TextEditingController genderController2 = TextEditingController();
 
   //
   String? _Id;
@@ -34,13 +45,14 @@ class Student {
         : data['gender'] == 'Female'
             ? Gender.female
             : null;
+    genderController2.text = data['gender'];
   }
 
   Map exportasMap() {
     int? studentId = int.tryParse(studentIDController.text);
     String name = nameController.text;
     int? age = int.tryParse(ageController.text);
-    String gender = genderController == Gender.male ? "Male" : "Female";
+    String gender = genderController2.text;
     String email = emailController.text;
 
     return {
