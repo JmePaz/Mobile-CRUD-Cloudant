@@ -74,6 +74,9 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
       //exit
       Navigator.of(context).pop({"isRefresh": true});
     } else {
+      setState(() {
+        _isLoading = false;
+      });
       Fluttertoast.showToast(msg: "Failed to delete records");
     }
   }
