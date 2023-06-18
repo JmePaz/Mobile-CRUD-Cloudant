@@ -20,7 +20,7 @@ class StudentList extends StatefulWidget {
 class _StudentListState extends State<StudentList> {
   bool _isLoading = true;
 
-  void ViewStudentDetails(int studentId) {
+  void viewStudentDetails(int studentId) {
     Navigator.of(context)
         .push(MaterialPageRoute(
             builder: ((context) => StudentDetailsPage(studentId: studentId))))
@@ -41,7 +41,7 @@ class _StudentListState extends State<StudentList> {
         children: <Widget>[
           ListTile(
               onTap: () {
-                ViewStudentDetails(studentId);
+                viewStudentDetails(studentId);
               },
               leading: const Icon(
                 Icons.person_pin,

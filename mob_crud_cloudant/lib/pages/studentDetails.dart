@@ -61,6 +61,23 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
     return {'ok': true};
   }
 
+  void _deleteRecord() async {
+    Navigator.pop(context, 'OK');
+    setState(() {
+      _isLoading = true;
+    });
+    Map response = await net.requestDeleteOnURL(
+        "student/${student?.getDocId()}", {'rev': student?.getDocRev()});
+
+    if (response.containsKey('ok') && response['ok']) {
+      Fluttertoast.showToast(msg: "Deleted Successfully");
+      //exit
+      Navigator.of(context).pop({"isRefresh": true});
+    } else {
+      Fluttertoast.showToast(msg: "Failed to delete records");
+    }
+  }
+
   Widget createForm() {
     return Form(
       key: _formKey,
@@ -189,7 +206,25 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
               Expanded(
                   flex: 4,
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () => showDialog(
+                        context: context,
+                        builder: (BuildContext context) => AlertDialog(
+                              title: const Text(
+                                  "Do you want to delete this record?"),
+                              content: const Text(
+                                  "This will delete the record permanently."),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, 'Cancel'),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: _deleteRecord,
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            )),
                     icon: Icon(Icons.delete_forever),
                     label: Text("delete"),
                     style: ElevatedButton.styleFrom(
@@ -207,6 +242,11 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
   }
 
   void update() async {
+    if (!_formKey.currentState!.validate() ||
+        student?.genderController2.text == "") {
+      return;
+    }
+
     if (student == null) {
       Fluttertoast.showToast(
           msg: "Error occured in retrieving student",
@@ -282,7 +322,7 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
                   future: _studentDetails,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done) {
-                      Map res = snapshot.data! as Map;
+                      Map res = snapshot.data!;
                       if (snapshot.hasData && res['ok']) {
                         return createForm();
                       } else {

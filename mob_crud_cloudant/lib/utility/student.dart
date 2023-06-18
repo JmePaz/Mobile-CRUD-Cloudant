@@ -48,6 +48,14 @@ class Student {
     genderController2.text = data['gender'];
   }
 
+  String? getDocId() {
+    return _Id;
+  }
+
+  String? getDocRev() {
+    return _rev;
+  }
+
   void updateRevId(String newRev) {
     _rev = newRev;
   }
