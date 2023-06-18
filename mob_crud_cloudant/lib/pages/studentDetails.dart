@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:blurry_modal_progress_hud/blurry_modal_progress_hud.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import '../utility/student.dart';
 import '../utility/network.dart' as net;
 import '../utility/validationFormFields.dart';
@@ -24,6 +25,8 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
   bool _isGenderError = false;
   Future<Map?>? _studentDetails;
   bool _isEnabledFields = false;
+  bool _isOnUpdate = false;
+  bool _hasUpdated = false;
 
   @override
   initState() {
@@ -76,9 +79,13 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
                 enabled: _isEnabledFields,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
+                  filled: true,
+                  fillColor: (_isEnabledFields)
+                      ? Colors.white
+                      : Color.fromARGB(255, 226, 225, 225),
                   border: OutlineInputBorder(),
                   hintText: 'e.g. 2020102131',
-                  labelText: 'Enter Student ID',
+                  labelText: 'Student ID',
                 ),
               ),
             ),
@@ -88,10 +95,14 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
                 validator: ValidationForm.validateNonEmptyField,
                 controller: student?.nameController,
                 enabled: _isEnabledFields,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: (_isEnabledFields)
+                      ? Colors.white
+                      : Color.fromARGB(255, 226, 225, 225),
                   border: OutlineInputBorder(),
                   hintText: 'e.g. John Doe',
-                  labelText: 'Enter Student Name',
+                  labelText: 'Student Name',
                 ),
               ),
             ),
@@ -106,10 +117,14 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(2)
                 ],
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: (_isEnabledFields)
+                      ? Colors.white
+                      : Color.fromARGB(255, 226, 225, 225),
                   border: OutlineInputBorder(),
                   hintText: 'e.g. 18, 20, or 24',
-                  labelText: 'Enter Student Age',
+                  labelText: 'Student Age',
                 ),
               ),
             ),
@@ -120,7 +135,11 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
                 keyboardType: TextInputType.emailAddress,
                 controller: student?.emailController,
                 enabled: _isEnabledFields,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: (_isEnabledFields)
+                      ? Colors.white
+                      : Color.fromARGB(255, 226, 225, 225),
                   border: OutlineInputBorder(),
                   hintText: 'e.g. johndoe@gmail.com',
                   labelText: 'Enter Email Address',
@@ -142,6 +161,9 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
                   ? GENDERS
                   : [student!.genderController2.text],
               controller: student!.genderController2,
+              fillColor: (_isEnabledFields)
+                  ? Colors.white
+                  : Color.fromARGB(255, 226, 225, 225),
             ),
             Row(children: [
               Expanded(
@@ -150,15 +172,19 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
                       padding: const EdgeInsets.only(
                           left: 5, bottom: 5, right: 5, top: 5),
                       child: ElevatedButton.icon(
-                          onPressed: () {},
+                          onPressed: update,
                           icon: Icon(Icons.update),
                           style: ButtonStyle(
                               shape: MaterialStateProperty.all<
                                       RoundedRectangleBorder>(
                                   RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                          ))),
-                          label: const Text("Update",
+                                borderRadius: BorderRadius.circular(5.0),
+                              )),
+                              backgroundColor: MaterialStatePropertyAll<Color>(
+                                  (_isOnUpdate)
+                                      ? Colors.green
+                                      : Colors.blueAccent)),
+                          label: Text((_isOnUpdate) ? "Save Changes" : "Update",
                               style: TextStyle(fontSize: 15))))),
               Expanded(
                   flex: 4,
@@ -180,6 +206,54 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
     Navigator.of(context).pop({'refresh': true});
   }
 
+  void update() async {
+    if (student == null) {
+      Fluttertoast.showToast(
+          msg: "Error occured in retrieving student",
+          gravity: ToastGravity.BOTTOM);
+      return;
+    }
+
+    if (!_isOnUpdate) {
+      setState(() {
+        _isEnabledFields = true;
+        _isOnUpdate = true;
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    //save changes
+    Map query = student!.exportasMap(isExportIds: true);
+    String bodyQuery = jsonEncode(query);
+
+    Map response = await net.requestPOSTOnURL('student', bodyQuery);
+    if (response.containsKey('ok') && response['ok']) {
+      //update rev id
+      student?.updateRevId(response['rev']);
+      _hasUpdated = true;
+      //success response
+      setState(() {
+        _isEnabledFields = false;
+        _isOnUpdate = false;
+      });
+
+      Fluttertoast.showToast(
+          msg: "Updated Successfully", gravity: ToastGravity.BOTTOM);
+    } else {
+      Fluttertoast.showToast(
+          msg: "Unsuccessful to Update. Please try again",
+          gravity: ToastGravity.BOTTOM);
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlurryModalProgressHUD(
@@ -189,7 +263,19 @@ class _StudentDetailsPageState extends State<StudentDetailsPage> {
           color: Colors.blueAccent,
         ),
         child: Scaffold(
-            appBar: AppBar(title: const Text("Create Student")),
+            appBar: AppBar(
+              title: const Text("Create Student"),
+              leading: IconButton(
+                onPressed: () {
+                  Map res = {};
+                  if (_hasUpdated) {
+                    res['isRefresh'] = true;
+                  }
+                  Navigator.of(context).pop(res);
+                },
+                icon: const Icon(Icons.arrow_back),
+              ),
+            ),
             body: Container(
                 margin: const EdgeInsets.all(10),
                 child: FutureBuilder(

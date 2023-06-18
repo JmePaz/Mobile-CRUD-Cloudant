@@ -48,19 +48,29 @@ class Student {
     genderController2.text = data['gender'];
   }
 
-  Map exportasMap() {
+  void updateRevId(String newRev) {
+    _rev = newRev;
+  }
+
+  Map exportasMap({isExportIds = false}) {
     int? studentId = int.tryParse(studentIDController.text);
     String name = nameController.text;
     int? age = int.tryParse(ageController.text);
     String gender = genderController2.text;
     String email = emailController.text;
-
-    return {
+    Map data = {
       'studentId': studentId,
       'name': name,
       'age': age,
       'gender': gender,
       'emailAddress': email
     };
+
+    if (isExportIds) {
+      data['_id'] = _Id;
+      data['_rev'] = _rev;
+    }
+
+    return data;
   }
 }

@@ -21,8 +21,17 @@ class _StudentListState extends State<StudentList> {
   bool _isLoading = true;
 
   void ViewStudentDetails(int studentId) {
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: ((context) => StudentDetailsPage(studentId: studentId))));
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+            builder: ((context) => StudentDetailsPage(studentId: studentId))))
+        .then((value) {
+      Map res = value as Map;
+      if (res.containsKey('isRefresh') && res['isRefresh']) {
+        setState(() {
+          _futureInitTiles = getStudRecordsTile();
+        });
+      }
+    });
   }
 
   Widget generateCardTile(String name, int studentId, String gender) {

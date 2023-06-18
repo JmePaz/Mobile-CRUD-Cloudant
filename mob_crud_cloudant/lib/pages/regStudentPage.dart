@@ -30,8 +30,6 @@ class _RegisterStudentPageState extends State<RegisterStudentPage> {
     setState(() {
       _isLoading = true;
     });
-    //show loading
-    await Future.delayed(const Duration(seconds: 1));
 
     if (!_formKey.currentState!.validate() ||
         newStudent.genderController2.text == "") {
@@ -55,6 +53,9 @@ class _RegisterStudentPageState extends State<RegisterStudentPage> {
           msg: "Created Successfully", gravity: ToastGravity.BOTTOM);
       _goToStudentList();
     } else {
+      Fluttertoast.showToast(
+          msg: "Registeration Failed. Please try again",
+          gravity: ToastGravity.BOTTOM);
       return;
     }
   }
